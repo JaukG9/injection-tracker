@@ -1,0 +1,109 @@
+import '../../core/utils/date_utils.dart';
+import '../models/enums.dart';
+
+/// A medication schedule reduced to what adherence needs.
+class ScheduleSpec {
+  const ScheduleSpec({
+    required this.type,
+    this.everyNDays = 1,
+    this.weekdays = const <int>{},
+    required this.startedOn,
+  });
+
+  final ScheduleType type;
+
+  /// For [ScheduleType.everyNDays]; interval in days (>= 1).
+  final int everyNDays;
+
+  /// For [ScheduleType.specificWeekdays]; ISO weekdays (Mon=1 .. Sun=7).
+  final Set<int> weekdays;
+
+  /// The first day the schedule is considered active.
+  final DateTime startedOn;
+}
+
+/// Adherence over a date range.
+class AdherenceStats {
+  const AdherenceStats({
+    required this.expected,
+    required this.taken,
+    required this.missed,
+    required this.currentStreak,
+  });
+
+  final int expected;
+  final int taken;
+  final int missed;
+
+  /// Consecutive scheduled days taken, counting back from the range end.
+  final int currentStreak;
+
+  /// Fraction in 0..1; 1.0 when nothing was expected.
+  double get rate => expected == 0 ? 1.0 : taken / expected;
+
+  int get percent => (rate * 100).round();
+}
+
+/// Pure adherence calculation from a schedule and the days injections happened.
+///
+/// New in the Flutter rebuild; the prototype had no schedule concept.
+class AdherenceService {
+  const AdherenceService();
+
+  DateTime _dateOnly(DateTime d) => AppDates.dateOnly(d);
+
+  /// Whether the schedule expects a dose on [day].
+  bool isScheduledOn(ScheduleSpec spec, DateTime day) {
+    final d = _dateOnly(day);
+    final start = _dateOnly(spec.startedOn);
+    if (d.isBefore(start)) return false;
+    switch (spec.type) {
+      case ScheduleType.daily:
+        return true;
+      case ScheduleType.everyNDays:
+        final n = spec.everyNDays < 1 ? 1 : spec.everyNDays;
+        return d.difference(start).inDays % n == 0;
+      case ScheduleType.specificWeekdays:
+        return spec.weekdays.contains(d.weekday);
+    }
+  }
+
+  /// Computes adherence between [from] and [to] (inclusive) given the set of
+  /// dates on which an injection was actually logged.
+  AdherenceStats stats({
+    required ScheduleSpec spec,
+    required Iterable<DateTime> injectionDates,
+    required DateTime from,
+    required DateTime to,
+  }) {
+    final taken = injectionDates.map(_dateOnly).toSet();
+    final start = _dateOnly(from);
+    final end = _dateOnly(to);
+
+    var expected = 0;
+    var takenCount = 0;
+    for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 1))) {
+      if (!isScheduledOn(spec, d)) continue;
+      expected++;
+      if (taken.contains(d)) takenCount++;
+    }
+
+    // Current streak: walk backwards over scheduled days from [end].
+    var streak = 0;
+    for (var d = end; !d.isBefore(start); d = d.subtract(const Duration(days: 1))) {
+      if (!isScheduledOn(spec, d)) continue;
+      if (taken.contains(d)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return AdherenceStats(
+      expected: expected,
+      taken: takenCount,
+      missed: expected - takenCount,
+      currentStreak: streak,
+    );
+  }
+}

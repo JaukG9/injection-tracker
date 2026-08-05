@@ -1,0 +1,28 @@
+# Static analysis configuration for the Injection Tracker app.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  # Generated files are not hand-maintained; keep them out of analysis.
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.drift.dart"
+  errors:
+    # Treat a few high-signal issues as errors to keep the codebase honest.
+    invalid_annotation_target: ignore # freezed/json_serializable false positives
+    todo: ignore
+  language:
+    strict-casts: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    directives_ordering: true
+    unawaited_futures: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    sort_child_properties_last: true
+    use_super_parameters: true
+    avoid_print: true
