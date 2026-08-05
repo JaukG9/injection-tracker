@@ -66,6 +66,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final choice = await pickAvatarChoice(context, ref,
         allowRemove: _avatarPath != null);
     if (choice == null) return;
+    // Every pick here creates a fresh temp file; drop the previous one so we
+    // don't leave orphaned images behind.
+    final previous = _avatarPath;
+    if (previous != null) {
+      await ref.read(imageServiceProvider).delete(previous);
+    }
     setState(() => _avatarPath = choice.remove ? null : choice.path);
   }
 

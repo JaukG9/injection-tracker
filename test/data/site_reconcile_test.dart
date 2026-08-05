@@ -2,8 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:injection_tracker/data/local/database/app_database.dart';
-import 'package:injection_tracker/data/repositories/profile_repository.dart';
 import 'package:injection_tracker/data/local/database/seed_sites.dart';
+import 'package:injection_tracker/data/repositories/profile_repository.dart';
 import 'package:injection_tracker/data/repositories/site_repository.dart';
 import 'package:injection_tracker/domain/models/enums.dart';
 

@@ -27,6 +27,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Sex _sex = Sex.unspecified;
   UnitSystem _units = UnitSystem.imperial;
   String? _avatarPath;
+  String? _originalAvatarPath;
   bool _avatarTouched = false;
   bool _loaded = false;
   bool _saving = false;
@@ -52,6 +53,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _sex = Sex.fromName(p.sex);
     _units = UnitSystem.fromName(p.unitSystem);
     _avatarPath = p.avatarPath;
+    _originalAvatarPath = p.avatarPath;
     _loaded = true;
   }
 
@@ -59,6 +61,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final choice = await pickAvatarChoice(context, ref,
         allowRemove: _avatarPath != null);
     if (choice == null) return;
+    // If the current image is one we saved this session (not the profile's
+    // original), it's now orphaned — delete it before swapping.
+    final previous = _avatarPath;
+    if (previous != null && previous != _originalAvatarPath) {
+      await ref.read(imageServiceProvider).delete(previous);
+    }
     setState(() {
       _avatarTouched = true;
       _avatarPath = choice.remove ? null : choice.path;
@@ -80,6 +88,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
     if (_avatarTouched) {
       await repo.setAvatar(widget.profileId, _avatarPath);
+      // The previous saved image is no longer referenced — remove its file.
+      if (_originalAvatarPath != null && _originalAvatarPath != _avatarPath) {
+        await ref.read(imageServiceProvider).delete(_originalAvatarPath);
+      }
     }
     if (!mounted) return;
     Navigator.of(context).pop();
