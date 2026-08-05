@@ -1,0 +1,19 @@
+# Android release signing — TEMPLATE (safe to commit).
+#
+# To enable signed release builds:
+#   1. Copy this file to `android/key.properties` (that copy is gitignored).
+#   2. Replace the four values below with the details of YOUR keystore.
+#   3. Build with:  flutter build appbundle   (or: flutter build apk --release)
+#
+# Notes:
+#   - `storeFile` is resolved relative to `android/app`, so `../../upload-keystore.jks`
+#     points at `app/upload-keystore.jks`, where the keystore currently lives.
+#     You may also use an absolute path.
+#   - Never commit the real `key.properties` or the `.jks` file. Losing the
+#     keystore means you can never update this app on the Play Store again —
+#     back it up somewhere safe.
+
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+storeFile=../../upload-keystore.jks

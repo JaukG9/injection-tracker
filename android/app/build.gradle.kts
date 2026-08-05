@@ -1,7 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Load release signing settings from android/key.properties (gitignored).
+// See android/key.properties.example for the expected keys.
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -17,7 +28,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.injectiontracker.injection_tracker"
         // minSdk 24: floor required by flutter_secure_storage / local_auth and
         // safe for all Phase-1 plugins. Use the higher of our floor and Flutter's.
@@ -27,11 +37,29 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        // Only defined when a real key.properties is present, so a fresh clone
+        // (without the keystore) can still configure and run debug builds.
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = (keystoreProperties["storeFile"] as String?)?.let { file(it) }
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                // Sign store-ready release builds with the upload keystore.
+                signingConfigs.getByName("release")
+            } else {
+                // No keystore configured: fall back so `flutter run --release`
+                // still works locally. NOT suitable for store upload.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
