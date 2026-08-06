@@ -65,7 +65,7 @@ class AuthService {
   Future<bool> authenticateBiometric() async {
     try {
       return await _localAuth.authenticate(
-        localizedReason: 'Unlock Injection Tracker',
+        localizedReason: 'Unlock SiteCycle',
         biometricOnly: true,
         persistAcrossBackgrounding: true,
       );

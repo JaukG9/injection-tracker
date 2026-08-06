@@ -146,7 +146,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   const SizedBox(height: 12),
                   Text(
                       widget.isInitial
-                          ? 'Welcome to ${AppConstants.appName}'
+                          ? 'Welcome to ${AppConstants.appShortName}'
                           : 'Add a profile',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineSmall

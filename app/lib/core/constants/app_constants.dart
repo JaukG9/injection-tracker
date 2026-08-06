@@ -5,7 +5,12 @@
 class AppConstants {
   const AppConstants._();
 
-  static const String appName = 'Injection Tracker';
+  /// Full display name shown inside the app (titles, footers, about).
+  static const String appName = 'SiteCycle: Injection Tracker';
+
+  /// Short name for tight spots (welcome line, system unlock prompt) and to
+  /// match the home-screen launcher label.
+  static const String appShortName = 'SiteCycle';
   static const String appVersion = '1.0.0';
 
   // Unit conversion (matches the original: IN_TO_CM = 2.54, LB_TO_KG = 0.453592).

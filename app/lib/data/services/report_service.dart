@@ -105,7 +105,7 @@ class ReportService {
             ? pw.SizedBox()
             : pw.Padding(
                 padding: const pw.EdgeInsets.only(bottom: 8),
-                child: pw.Text("${profile.name}'s Injection Tracker report",
+                child: pw.Text("${profile.name}'s SiteCycle report",
                     style: pw.TextStyle(fontSize: 9, color: muted)),
               ),
         footer: (ctx) => pw.Padding(

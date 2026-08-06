@@ -39,7 +39,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: "$name's Injection Tracker backup",
+          text: "$name's SiteCycle backup",
         ),
       );
       _set('Your backup is ready.');
@@ -66,7 +66,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       final isV2 = BackupService.looksLikeV2(json);
       if (!isV1 && !isV2) {
         _set(
-          "This doesn't look like an Injection Tracker backup file.",
+          "This doesn't look like a SiteCycle backup file.",
           error: true,
         );
         return;
