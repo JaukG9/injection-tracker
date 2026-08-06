@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{APP_NAME}} — a private, offline injection log</title>
+<meta name="description" content="A private, offline record for scheduled injectable medication. Rotate injection sites, log doses, track growth, and export a summary for appointments. Nothing is uploaded.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F7F9;
+    --card:#FFFFFF;
+    --ink:#101820;
+    --muted:#5B6875;
+    --rule:#DCE3EA;
+    --blue:#2C5F8A;
+    --blue-deep:#1B3D5C;
+    --ok:#3E8E5A;
+    --warn:#C08329;
+    --soon:#B0433A;
+    --figure:#E4EAF0;
+    --figure-line:#C6D2DD;
+    --serif:"IBM Plex Serif",Georgia,serif;
+    --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1000px;margin:0 auto;padding:0 28px}
+
+  /* ---------- structural label ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin:0 0 14px;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:22px 0;
+    background:var(--card);
+  }
+  .masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .wordmark{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:19px;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .masthead nav{font-family:var(--mono);font-size:13px}
+  .masthead nav a{color:var(--muted);text-decoration:none;margin-left:20px}
+  .masthead nav a:hover{color:var(--blue);text-decoration:underline}
+
+  /* ---------- hero ---------- */
+  .hero{padding:76px 0 68px;background:var(--card);border-bottom:1px solid var(--rule)}
+  .hero .wrap{display:grid;grid-template-columns:1fr 300px;gap:56px;align-items:center}
+  .hero h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(34px,5vw,50px);
+    line-height:1.1;
+    letter-spacing:-.02em;
+    margin:0 0 22px;
+  }
+  .hero .lede{font-size:19px;color:var(--muted);margin:0 0 14px;max-width:46ch}
+  .hero .lede strong{color:var(--ink);font-weight:600}
+
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .badge{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:.02em;
+    color:var(--blue-deep);
+    background:#EDF3F8;
+    border:1px solid #D5E2ED;
+    border-radius:2px;
+    padding:6px 11px;
+  }
+
+  /* ---------- signature: body map ---------- */
+  .map{
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:22px 18px 18px;
+  }
+  .map svg{display:block;width:100%;height:auto}
+  .map figcaption{
+    font-family:var(--mono);
+    font-size:11.5px;
+    line-height:1.7;
+    color:var(--muted);
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--rule);
+  }
+  .key{display:flex;align-items:center;gap:8px}
+  .key i{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+
+  .site{opacity:0;animation:pop .45s cubic-bezier(.2,.9,.3,1.3) forwards}
+  @keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){
+    .site{opacity:1;animation:none}
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-bottom:1px solid var(--rule)}
+  section h2{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:27px;
+    letter-spacing:-.015em;
+    margin:0 0 10px;
+  }
+  section > .wrap > p{max-width:62ch;color:var(--muted);margin:0 0 8px}
+
+  .features{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    margin-top:36px;
+  }
+  .feature{background:var(--card);padding:26px 24px}
+  .feature h3{
+    font-family:var(--sans);
+    font-size:15.5px;
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .feature p{margin:0;font-size:15px;color:var(--muted);line-height:1.6}
+
+  /* ---------- privacy panel ---------- */
+  .privacy-panel{background:var(--blue-deep);border-bottom:none}
+  .privacy-panel h2,.privacy-panel p{color:#fff}
+  .privacy-panel .eyebrow{color:#9FC4E0}
+  .privacy-panel p{color:#C9D9E6}
+  .privacy-list{
+    list-style:none;
+    padding:0;
+    margin:32px 0 0;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:22px;
+  }
+  .privacy-list li{
+    border-top:1px solid rgba(255,255,255,.22);
+    padding-top:14px;
+    color:#C9D9E6;
+    font-size:15px;
+    line-height:1.6;
+  }
+  .privacy-list b{
+    display:block;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#fff;
+    font-weight:500;
+    margin-bottom:6px;
+  }
+  .panel-link{
+    display:inline-block;
+    margin-top:34px;
+    font-family:var(--mono);
+    font-size:14px;
+    color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.5);
+    text-decoration:none;
+    padding-bottom:2px;
+  }
+  .panel-link:hover{border-bottom-color:#fff}
+
+  /* ---------- disclaimer ---------- */
+  .notice{background:#FFF9F0;border-bottom:1px solid var(--rule)}
+  .notice .wrap{max-width:760px;margin:0 auto}
+  .notice .eyebrow{color:#8A5A12}
+  .notice p{color:#4A3B22;margin:0 0 14px;font-size:16px}
+  .notice p:last-child{margin-bottom:0}
+
+  /* ---------- footer ---------- */
+  footer{padding:46px 0 60px;font-size:14.5px;color:var(--muted)}
+  footer a{color:var(--blue);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .footer-links{font-family:var(--mono);font-size:13.5px;margin:0 0 16px}
+  .footer-links a{margin-right:20px}
+
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--blue);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  @media (max-width:820px){
+    .hero .wrap{grid-template-columns:1fr;gap:40px}
+    .map{max-width:280px}
+    .hero{padding:52px 0 48px}
+    section{padding:48px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="wordmark">{{APP_NAME}}</p>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="privacy.html">Policy</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Injection record &middot; iOS and Android</p>
+      <h1>Know which site is next. Keep a record you can trust.</h1>
+      <p class="lede">A private log for scheduled injectable medication, for the person taking it and the caregiver keeping track.</p>
+      <p class="lede"><strong>Everything stays on your device.</strong> No account, no server, no tracking.</p>
+      <div class="badges">
+        <span class="badge">Works offline</span>
+        <span class="badge">PIN &amp; biometric lock</span>
+        <span class="badge">Multiple profiles</span>
+        <span class="badge">PDF for appointments</span>
+      </div>
+    </div>
+
+    <figure class="map">
+      <svg viewBox="0 0 150 238" role="img" aria-labelledby="mapTitle mapDesc">
+        <title id="mapTitle">Injection site rotation map</title>
+        <desc id="mapDesc">A stylised human figure with ten injection sites marked. Each site is shaded by how many days have passed since it was last used.</desc>
+
+        <g fill="var(--figure)" stroke="var(--figure-line)" stroke-width="1">
+          <circle cx="75" cy="23" r="14"/>
+          <rect x="70" y="35" width="10" height="8" rx="3"/>
+          <path d="M75 41 C62 41 52 45 50 53 L47 83 C46 91 48 97 50 101 L53 129 C54 137 56 141 60 143 L90 143 C94 141 96 137 97 129 L100 101 C102 97 104 91 103 83 L100 53 C98 45 88 41 75 41 Z"/>
+          <path d="M50 54 C44 56 41 62 40 72 L36 106 C35 114 36 120 38 122 L44 122 C45 118 46 112 46 106 L49 74 Z"/>
+          <path d="M100 54 C106 56 109 62 110 72 L114 106 C115 114 114 120 112 122 L106 122 C105 118 104 112 104 106 L101 74 Z"/>
+          <path d="M62 143 L59 192 C58 207 59 218 60 226 L71 226 C72 218 73 202 73 192 L74 145 Z"/>
+          <path d="M88 143 L91 192 C92 207 91 218 90 226 L79 226 C78 218 77 202 77 192 L76 145 Z"/>
+        </g>
+
+        <g stroke="#FFFFFF" stroke-width="1.6">
+          <circle class="site" cx="43"  cy="83"  r="6" fill="var(--ok)"   style="animation-delay:.05s"/>
+          <circle class="site" cx="107" cy="83"  r="6" fill="var(--warn)" style="animation-delay:.12s"/>
+          <circle class="site" cx="64"  cy="98"  r="6" fill="var(--ok)"   style="animation-delay:.19s"/>
+          <circle class="site" cx="86"  cy="98"  r="6" fill="var(--soon)" style="animation-delay:.26s"/>
+          <circle class="site" cx="64"  cy="118" r="6" fill="var(--ok)"   style="animation-delay:.33s"/>
+          <circle class="site" cx="86"  cy="118" r="6" fill="var(--ok)"   style="animation-delay:.40s"/>
+          <circle class="site" cx="58"  cy="137" r="6" fill="var(--warn)" style="animation-delay:.47s"/>
+          <circle class="site" cx="92"  cy="137" r="6" fill="var(--ok)"   style="animation-delay:.54s"/>
+          <circle class="site" cx="65"  cy="166" r="6" fill="var(--soon)" style="animation-delay:.61s"/>
+          <circle class="site" cx="85"  cy="166" r="6" fill="var(--ok)"   style="animation-delay:.68s"/>
+        </g>
+      </svg>
+
+      <figcaption>
+        <span class="key"><i style="background:var(--ok)"></i> Rested 6+ days</span>
+        <span class="key"><i style="background:var(--warn)"></i> Used 3&ndash;5 days ago</span>
+        <span class="key"><i style="background:var(--soon)"></i> Used in last 2 days</span>
+      </figcaption>
+    </figure>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow">What it does</p>
+    <h2>A record, not an adviser</h2>
+    <p>The app keeps track of what happened. Every clinical decision stays with you and your prescriber.</p>
+
+    <div class="features">
+      <div class="feature">
+        <h3>Site rotation</h3>
+        <p>A tappable body map shades each site by how long it has been since you used it, and suggests whichever of your allowed sites has rested longest.</p>
+      </div>
+      <div class="feature">
+        <h3>Injection log</h3>
+        <p>Record site, date, time, dose, and notes. Mark a day as skipped when that is what happened. Remove an entry with undo if you change your mind.</p>
+      </div>
+      <div class="feature">
+        <h3>Growth tracking</h3>
+        <p>Log height and weight in metric or imperial. The app calculates BMI and annualized velocity from the measurements you enter and plots them over time.</p>
+      </div>
+      <div class="feature">
+        <h3>Calendar and history</h3>
+        <p>A month view shows injection days and flags scheduled days that were missed. The full history is browsable in reverse order.</p>
+      </div>
+      <div class="feature">
+        <h3>Summary for appointments</h3>
+        <p>Generate a date-ranged PDF covering adherence, rotation, growth, dose history, and individual injections. Print or share it however you like.</p>
+      </div>
+      <div class="feature">
+        <h3>Profiles and reminders</h3>
+        <p>Caregivers can keep fully separate profiles, each with its own history and schedule. An optional daily reminder arrives at a time you pick.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="doses">
+  <div class="wrap">
+    <p class="eyebrow">On doses</p>
+    <h2>The app never suggests a dose</h2>
+    <p>Choosing a medication type sets only the unit, the route, and the sites typically used for that kind of medication. It never sets an amount. The dose is always the number your prescriber gave you, entered by you, and the app does not check it, adjust it, or comment on it.</p>
+  </div>
+</section>
+
+<section class="privacy-panel" id="privacy">
+  <div class="wrap">
+    <p class="eyebrow">Privacy</p>
+    <h2>Your records never leave your device</h2>
+    <p>There is no account to create and no server to sign in to, because there is no server.</p>
+
+    <ul class="privacy-list">
+      <li><b>No collection</b>We do not receive your data. We cannot see it, retrieve it, or produce it for anyone.</li>
+      <li><b>No third parties</b>No analytics, no advertising, no crash reporting, no trackers of any kind in the app.</li>
+      <li><b>You control exports</b>Backups and PDF summaries are created only when you ask, and go only where you send them.</li>
+      <li><b>Your PIN is not stored</b>It is salted, hashed, and kept in your platform's secure credential store. Never in plain text.</li>
+    </ul>
+
+    <a class="panel-link" href="privacy.html">Read the full privacy policy &rarr;</a>
+  </div>
+</section>
+
+<section class="notice">
+  <div class="wrap">
+    <p class="eyebrow">Important</p>
+    <p>{{APP_NAME}} is a personal record-keeping tool. It is not a medical device and does not provide medical advice, diagnosis, or treatment. It does not verify your dose and cannot detect an error in your medication or a problem with your health.</p>
+    <p>Always follow the instructions given by your prescriber and pharmacist, and contact a qualified healthcare professional with any question about your treatment. Never start, stop, or change a medication or dose based on anything in this app.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="footer-links">
+      <a href="privacy.html">Privacy policy</a>
+      <a href="mailto:{{SUPPORT_EMAIL}}">Support</a>
+      <a href="{{GITHUB_URL}}">Source</a>
+    </p>
+    <p>
+      {{APP_NAME}} is made by {{DEVELOPER_NAME}}.
+      Questions and bug reports: <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

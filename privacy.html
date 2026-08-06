@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — {{APP_NAME}}</title>
+<meta name="description" content="Privacy policy for {{APP_NAME}}. The app collects no data. Everything you enter stays on your own device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F7F9;
+    --card:#FFFFFF;
+    --ink:#101820;
+    --muted:#5B6875;
+    --rule:#DCE3EA;
+    --blue:#2C5F8A;
+    --blue-deep:#1B3D5C;
+    --serif:"IBM Plex Serif",Georgia,serif;
+    --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 28px}
+
+  .masthead{border-bottom:1px solid var(--rule);padding:22px 0;background:var(--card)}
+  .masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .wordmark{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.01em;margin:0}
+  .wordmark a{color:inherit;text-decoration:none}
+  .masthead nav{font-family:var(--mono);font-size:13px}
+  .masthead nav a{color:var(--muted);text-decoration:none;margin-left:20px}
+  .masthead nav a:hover{color:var(--blue);text-decoration:underline}
+
+  .doc{background:var(--card);border-bottom:1px solid var(--rule);padding:62px 0 76px}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;font-weight:500;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--serif);font-weight:600;
+    font-size:clamp(30px,4.5vw,40px);line-height:1.15;
+    letter-spacing:-.02em;margin:0 0 10px;
+  }
+  .stamp{font-family:var(--mono);font-size:13px;color:var(--muted);margin:0 0 40px}
+
+  .tldr{
+    background:var(--paper);
+    border-left:3px solid var(--blue);
+    padding:22px 24px;
+    margin:0 0 46px;
+  }
+  .tldr p{margin:0;font-size:16.5px}
+  .tldr p + p{margin-top:12px}
+
+  h2{
+    font-family:var(--sans);
+    font-size:17px;font-weight:600;
+    letter-spacing:.01em;
+    margin:42px 0 12px;
+    padding-top:22px;
+    border-top:1px solid var(--rule);
+  }
+  h2 .num{
+    font-family:var(--mono);
+    font-size:12.5px;font-weight:500;
+    color:var(--blue);
+    display:block;
+    letter-spacing:.1em;
+    margin-bottom:6px;
+  }
+  p{margin:0 0 16px}
+  ul{margin:0 0 16px;padding-left:22px}
+  li{margin-bottom:9px}
+  a{color:var(--blue)}
+
+  .flag{
+    background:#FFF9F0;
+    border:1px solid #EBD9BC;
+    border-radius:3px;
+    padding:20px 22px;
+    margin:22px 0;
+  }
+  .flag p{margin:0;font-size:16px;color:#4A3B22}
+  .flag p + p{margin-top:12px}
+
+  .disclaimer{
+    margin-top:48px;padding-top:26px;
+    border-top:2px solid var(--ink);
+    font-size:16px;
+  }
+  .disclaimer b{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:10px}
+
+  footer{padding:40px 0 56px;font-size:14.5px;color:var(--muted)}
+  footer a{color:var(--blue);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  a:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
+
+  @media (max-width:640px){ .doc{padding:44px 0 56px} }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="wordmark"><a href="index.html">{{APP_NAME}}</a></p>
+    <nav><a href="index.html">Back to app</a></nav>
+  </div>
+</header>
+
+<main class="doc">
+  <div class="wrap">
+    <p class="eyebrow">Legal</p>
+    <h1>Privacy Policy</h1>
+    <p class="stamp">{{APP_NAME}} &middot; Effective {{EFFECTIVE_DATE}}</p>
+
+    <div class="tldr">
+      <p><strong>The short version.</strong> {{APP_NAME}} does not collect your information. There is no account, no server, and no analytics or advertising software in the app.</p>
+      <p>Everything you enter stays in storage on your own device unless you deliberately export or share it yourself.</p>
+    </div>
+
+    <h2><span class="num">01</span>Who this policy covers</h2>
+    <p>This policy applies to the {{APP_NAME}} mobile application published by {{DEVELOPER_NAME}} ("we", "us"). It does not cover any other app, website, or service.</p>
+
+    <h2><span class="num">02</span>Information we collect</h2>
+    <p>None. We do not operate a server that receives your data, and the app contains no analytics, advertising, crash-reporting, or tracking software. We cannot see your records, we do not receive them, and we have no ability to retrieve them.</p>
+    <p>We also do not collect an email address, a name, or any account identifier, because the app has no sign-up or sign-in of any kind.</p>
+
+    <h2><span class="num">03</span>Information the app stores on your device</h2>
+    <p>The app stores the following in a database inside its own private storage area on your device:</p>
+    <ul>
+      <li>Profile details you enter: name or label, date of birth, sex, and an optional profile photo</li>
+      <li>Medication details you enter: the medication type you select, the dose you enter, unit, route, and schedule</li>
+      <li>Injection records: site, date, time, dose, notes, and skipped days</li>
+      <li>Growth measurements you enter: height and weight, and values calculated from them</li>
+      <li>App settings: units, theme, reminder time, and which injection sites you have enabled</li>
+    </ul>
+    <p>This information is yours. It stays on the device. It is not transmitted to us or to anyone else by the app.</p>
+
+    <h2><span class="num">04</span>Profile photos, camera, and photo library</h2>
+    <p>If you add a profile photo, the app asks your device for permission to open the camera or your photo library. The image you pick is copied into the app's own storage on the device. The app does not read, index, or upload any other photo, and it does not access your photo library for any other purpose.</p>
+
+    <h2><span class="num">05</span>PIN and biometric app lock</h2>
+    <p>If you turn on the app lock, your PIN is not stored. It is combined with a random value and kept only as a cryptographic hash in your platform's secure credential store, the iOS Keychain or the Android Keystore. Biometric checks are performed by the operating system; the app is told only whether the check passed. We never receive your PIN or any biometric data, and neither does the app itself in any recoverable form.</p>
+
+    <h2><span class="num">06</span>Notifications</h2>
+    <p>If you turn on reminders, the app schedules a local notification on your device at the time you choose. Local notifications are generated on the device by the app itself. No push server is involved and no notification content leaves your device.</p>
+    <p>Notification text is kept general and does not name your medication, so that a notification appearing on a locked screen does not disclose your treatment to anyone nearby.</p>
+
+    <h2><span class="num">07</span>Backups, exports, and PDF summaries</h2>
+    <p>The app can create two kinds of files, and only when you ask it to: a backup file containing your records, and a PDF summary of a date range intended for an appointment.</p>
+    <p>When you create one, your device's standard share sheet opens and you choose where the file goes: email, a messaging app, a cloud drive, a printer, or local storage. Once you send a file somewhere, this policy no longer governs it. The privacy policy and security practices of whatever service you chose apply instead.</p>
+    <p>Please consider this carefully with health information. Email and consumer cloud storage are convenient but are generally not designed for sensitive medical records.</p>
+
+    <h2><span class="num">08</span>We do not share or sell anything</h2>
+    <p>We do not sell, rent, share, or disclose your information, because we never receive it. There are no third-party SDKs in the app that could receive it either. No advertising networks, no analytics providers, no data brokers.</p>
+    <p>If we were ever compelled by law to produce user data, we would have nothing to produce.</p>
+
+    <h2><span class="num">09</span>Security, stated honestly</h2>
+    <p>Because the app transmits nothing, there is no network traffic to intercept and no server of ours that could be breached.</p>
+    <p>On the device, your records live in the app's private storage area, which the operating system keeps separate from other apps. If your device has a passcode or screen lock enabled, that storage is also covered by the device's own encryption while the device is locked.</p>
+    <div class="flag">
+      <p>The app's database is not separately encrypted with its own key. Anyone who can unlock your device and open the app, or who can extract an unencrypted backup of your device, may be able to read your records.</p>
+      <p>To protect them: use a device passcode or screen lock, turn on the app's PIN or biometric lock, and be deliberate about where you send exported files.</p>
+    </div>
+
+    <h2><span class="num">10</span>Children</h2>
+    <p>{{APP_NAME}} is intended for adults, including parents and caregivers who manage injections for someone else. It is not directed to children and we do not knowingly collect information from anyone, of any age.</p>
+    <p>A profile in the app may describe a child, because a caregiver may be tracking a child's treatment. Those details are entered by the adult using the app, stay on that adult's device, and are never transmitted to us. The app has no social features, no content directed at children, and no advertising.</p>
+
+    <h2><span class="num">11</span>Your rights and choices</h2>
+    <p>Privacy laws such as the GDPR, the UK GDPR, and the CCPA give people rights to access, correct, delete, and port their personal information, and to know whether it is sold or shared.</p>
+    <p>Because we hold none of your information, you already have complete and direct control of all of it:</p>
+    <ul>
+      <li><strong>Access and correct:</strong> open the app and edit any record</li>
+      <li><strong>Delete:</strong> delete individual entries, delete or archive a profile, or uninstall the app, which removes its database from your device</li>
+      <li><strong>Port:</strong> use the backup export to produce a file of your records</li>
+      <li><strong>Sale or sharing:</strong> we do not sell or share your information, and we never have</li>
+    </ul>
+    <p>There is no request to submit to us, because there is nothing for us to look up. If you want to confirm any of this, write to us at the address in section 14.</p>
+
+    <h2><span class="num">12</span>A note about HIPAA</h2>
+    <p>HIPAA applies to healthcare providers, health plans, healthcare clearinghouses, and their business associates. {{APP_NAME}} is a consumer record-keeping tool. We are not a covered entity or a business associate, we have no relationship with your provider, and we receive no information from you. Records you keep in this app are personal records, not protected health information held by a covered entity.</p>
+
+    <h2><span class="num">13</span>Changes to this policy</h2>
+    <p>If this policy changes, we will update the effective date at the top and post the new version at this URL. If a change is significant, such as the app beginning to transmit information off the device, we will say so clearly in the app's release notes as well as here. Changes never apply retroactively to data already on your device.</p>
+
+    <h2><span class="num">14</span>Contact</h2>
+    <p>Questions about this policy or about privacy in the app:<br>
+    {{DEVELOPER_NAME}}<br>
+    <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a></p>
+
+    <h2><span class="num">15</span>Governing law</h2>
+    <p>This policy is governed by the laws of {{DEVELOPER_LOCATION}}, without regard to conflict-of-law provisions.</p>
+
+    <div class="disclaimer">
+      <b>Disclaimer</b>
+      <p>{{APP_NAME}} is a personal record-keeping tool. It is not a medical device and does not provide medical advice, diagnosis, or treatment. It does not verify doses and cannot detect an error or a health problem. Always follow the instructions given by your prescriber and pharmacist.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="index.html">&larr; Back to {{APP_NAME}}</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
