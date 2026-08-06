@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.injectiontracker.injection_tracker"
+    namespace = "dev.ayaangoswami.injectiontracker"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.injectiontracker.injection_tracker"
+        applicationId = "dev.ayaangoswami.injectiontracker"
         // minSdk 24: floor required by flutter_secure_storage / local_auth and
         // safe for all Phase-1 plugins. Use the higher of our floor and Flutter's.
         minSdk = maxOf(24, flutter.minSdkVersion)

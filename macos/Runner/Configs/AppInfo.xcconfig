@@ -8,7 +8,7 @@
 PRODUCT_NAME = injection_tracker
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.injectiontracker.injectionTracker
+PRODUCT_BUNDLE_IDENTIFIER = dev.ayaangoswami.injectiontracker
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.injectiontracker. All rights reserved.
