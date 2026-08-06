@@ -1,4 +1,4 @@
-package com.injectiontracker.injection_tracker
+package dev.ayaangoswami.injectiontracker
 
 import io.flutter.embedding.android.FlutterActivity
 
