@@ -23,4 +23,10 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
 }
 
+// Unique root name so this Gradle project doesn't collide with other Flutter
+// apps' android/ roots (which all otherwise default to "android") when several
+// are open in one VS Code / IDE workspace. Fixes the Java/Gradle extension's
+// "A project with the name android already exists" / "Duplicate root element android".
+rootProject.name = "injection_tracker_android"
+
 include(":app")
