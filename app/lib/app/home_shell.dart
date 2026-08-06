@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Direction of the next shell tab transition. Set by [HomeShell] the moment a
+/// tab is tapped — `true` when moving to a tab to the *left* of the current one
+/// — and read by the router's shared-axis page transition so tapping left vs.
+/// right animates in opposite directions.
+final ValueNotifier<bool> tabNavReverse = ValueNotifier<bool>(false);
+
 /// Top-level navigation shell. Shows a bottom [NavigationBar] on phones and a
 /// [NavigationRail] on wider screens (tablet/desktop), per the responsive plan.
 class HomeShell extends StatelessWidget {
@@ -23,8 +29,11 @@ class HomeShell extends StatelessWidget {
     return i < 0 ? 0 : i;
   }
 
-  void _onTap(BuildContext context, int i) =>
-      context.go(_destinations[i].path);
+  void _onTap(BuildContext context, int i) {
+    // Reverse the transition when the tapped tab sits left of the current one.
+    tabNavReverse.value = i < _indexFor(context);
+    context.go(_destinations[i].path);
+  }
 
   @override
   Widget build(BuildContext context) {

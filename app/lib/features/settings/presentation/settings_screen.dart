@@ -455,7 +455,7 @@ class _RemindersCard extends ConsumerWidget {
     await service.scheduleDailyReminder(
       hour: time.hour,
       minute: time.minute,
-      title: "Tonight's injection",
+      title: 'Injection reminder',
       body: profile == null
           ? 'Time to log the injection.'
           : "Time for ${profile.name}'s injection.",

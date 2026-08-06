@@ -66,7 +66,7 @@ class DashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            "Tonight's injection for $name",
+            'Next injection for $name',
             style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
@@ -99,7 +99,7 @@ class DashboardScreen extends ConsumerWidget {
           FilledButton.icon(
             onPressed: () => _openLog(context, siteKey: suggestedKey),
             icon: const Icon(Icons.add),
-            label: const Text("Log tonight's injection"),
+            label: const Text('Log injection'),
           ),
         ],
       ),

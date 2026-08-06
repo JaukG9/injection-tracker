@@ -124,7 +124,23 @@ class _InjectionTile extends StatelessWidget {
                 ),
               ),
             ),
-            if (dose.isNotEmpty)
+            if (injection.skipped)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Skipped',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onErrorContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else if (dose.isNotEmpty)
               Text(dose, style: theme.textTheme.bodySmall),
           ],
         ),

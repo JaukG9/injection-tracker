@@ -25,6 +25,15 @@ class InjectionTrackerApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(seedColor),
       themeMode: themeMode,
       routerConfig: router,
+      // Tap anywhere outside a text field to dismiss the keyboard / drop focus.
+      // Sits above the router's Navigator so it applies to every screen and
+      // dialog; translucent so empty-space taps register, and the tap gesture
+      // still yields to buttons and fields (they win the gesture arena).
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

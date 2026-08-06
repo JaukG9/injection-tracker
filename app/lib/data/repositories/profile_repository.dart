@@ -104,8 +104,10 @@ class ProfileRepository {
           );
 
       // Seed the default injection sites for this profile, enabling only the
-      // ones the user allows for this medication (all, if unspecified).
+      // ones the user allows for this medication. Null or an empty set both
+      // mean "leave every site enabled" so a profile always has usable sites.
       final enabled = draft.enabledSiteKeys;
+      final enableAll = enabled == null || enabled.isEmpty;
       for (final s in kSeedSites) {
         await _db.into(_db.injectionSites).insert(
               InjectionSitesCompanion.insert(
@@ -119,7 +121,7 @@ class ProfileRepository {
                 cy: s.cy,
                 rx: s.rx,
                 ry: s.ry,
-                isEnabled: Value(enabled == null || enabled.contains(s.key)),
+                isEnabled: Value(enableAll || enabled.contains(s.key)),
                 sortOrder: Value(s.sortOrder),
               ),
             );

@@ -38,7 +38,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   DoseUnit _doseUnit = DoseUnit.mg;
   InjectionRoute _route = InjectionRoute.subcutaneous;
   MedicationPreset? _preset;
-  Set<String> _enabledSiteKeys = {...allSiteKeys};
+  // Empty = "all areas". The site chooser starts unselected; the user opts in
+  // to the specific spots they use.
+  Set<String> _enabledSiteKeys = {};
   ScheduleType _schedule = ScheduleType.daily;
   String? _avatarPath;
   bool _saving = false;
@@ -50,9 +52,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       _preset = preset;
       _route = preset.route;
       _doseUnit = preset.defaultUnit;
-      // Start from the sites this type of medicine typically uses; the user
-      // can narrow it down further below.
-      _enabledSiteKeys = siteKeysForRegions(preset.regions);
       if (!preset.isOther) _medication.text = preset.name;
     });
   }
@@ -307,8 +306,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              _enabledSiteKeys.length == allSiteKeys.length
-                                  ? 'All areas'
+                              _enabledSiteKeys.isEmpty
+                                  ? 'All areas (tap to choose specific spots)'
                                   : '${_enabledSiteKeys.length} of ${allSiteKeys.length} spots selected',
                             ),
                           ),

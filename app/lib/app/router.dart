@@ -66,26 +66,86 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/dashboard',
-            builder: (context, state) => const DashboardScreen(),
+            pageBuilder: (context, state) =>
+                _tabPage(state, const DashboardScreen()),
           ),
           GoRoute(
             path: '/calendar',
-            builder: (context, state) => const CalendarScreen(),
+            pageBuilder: (context, state) =>
+                _tabPage(state, const CalendarScreen()),
           ),
           GoRoute(
             path: '/history',
-            builder: (context, state) => const HistoryScreen(),
+            pageBuilder: (context, state) =>
+                _tabPage(state, const HistoryScreen()),
           ),
           GoRoute(
             path: '/growth',
-            builder: (context, state) => const GrowthScreen(),
+            pageBuilder: (context, state) =>
+                _tabPage(state, const GrowthScreen()),
           ),
           GoRoute(
             path: '/settings',
-            builder: (context, state) => const SettingsScreen(),
+            pageBuilder: (context, state) =>
+                _tabPage(state, const SettingsScreen()),
           ),
         ],
       ),
     ],
   );
 });
+
+/// Page wrapper for the bottom-nav tabs: a horizontal shared-axis transition
+/// whose direction follows [tabNavReverse] (see [HomeShell]), so moving to a
+/// tab on the right slides forward and moving left slides back.
+CustomTransitionPage<void> _tabPage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 260),
+    reverseTransitionDuration: const Duration(milliseconds: 260),
+    transitionsBuilder: _sharedAxisHorizontal,
+    child: child,
+  );
+}
+
+/// Material shared-axis (x) transition. Each page drives its own entrance with
+/// [animation] and its exit (while being covered) with [secondaryAnimation],
+/// so no screen is rebuilt off-screen. Slide direction flips with
+/// [tabNavReverse]: forward = new page in from the right, old page out to the
+/// left; reverse = the mirror image.
+Widget _sharedAxisHorizontal(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  const shift = 0.12; // fraction of page width to slide
+  final dir = tabNavReverse.value ? -1.0 : 1.0;
+
+  final enterSlide = Tween<Offset>(
+    begin: Offset(dir * shift, 0),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+  final exitSlide = Tween<Offset>(
+    begin: Offset.zero,
+    end: Offset(-dir * shift, 0),
+  ).animate(
+    CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInCubic),
+  );
+
+  return FadeTransition(
+    // Fade the outgoing page out as it gets covered.
+    opacity: ReverseAnimation(
+      CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeIn),
+    ),
+    child: SlideTransition(
+      position: exitSlide,
+      child: FadeTransition(
+        // Fade the incoming page in.
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: SlideTransition(position: enterSlide, child: child),
+      ),
+    ),
+  );
+}
