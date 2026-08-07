@@ -1,27 +1,37 @@
-# Store screenshots (Android)
+# Android store assets
 
-Publication-ready phone screenshots captured from a release build of the app
-running on an Android emulator, using a realistic sample profile ("Emma").
+These are the Google Play screenshots for the phone. They were captured from a
+release build running on an Android emulator, using a sample profile ("Emma") so
+the screens show real looking data instead of an empty first launch.
 
-**Format:** PNG, **1080 × 2160** (2:1 aspect ratio, within the Google Play limit
-of "max dimension no more than 2× the min dimension"; min 320px, max 3840px).
-The status bar and gesture pill were trimmed from the raw 1080 × 2340 captures.
+## Sizes
+
+- PNG, 1080 by 2160 pixels (a 2 to 1 ratio).
+- This stays inside Google Play's rule that the longest side is no more than
+  twice the shortest, with a 320 pixel minimum and a 3840 pixel maximum.
+- The status bar and the gesture pill were trimmed off the raw 1080 by 2340
+  captures.
+
+## Screenshots
 
 | File | Screen | What it shows |
 |---|---|---|
-| `01-dashboard.png` | Home / Dashboard | Personalized greeting, suggested rotation site, current dose (mg + mg/kg), and the color-coded body map. The hero shot. |
-| `02-rotation-overview.png` | Site Rotation Overview | All ten sites with recency ("last used yesterday … 10 days ago") and red/amber/green status. |
-| `03-log-injection.png` | Log Injection | Medication + route banner, recency legend, tappable front/back body maps, selected site, date/time and dose. |
-| `04-growth-chart.png` | Growth Tracker | Height/weight logging form and a growth chart (`fl_chart`). |
-| `05-calendar.png` | Calendar | Month view of injected days, today marker, and a "This month" adherence summary (100% / streak). |
-| `06-history.png` | Injection History | Dated log with color-coded site pills, dose, and notes. |
-| `07-settings.png` | Settings | Profile, medication, theme (light/dark/system), and units. |
-| `08-medications.png` | Medication catalog | The preset picker across categories (growth hormone, diabetes, …) with the "follow your prescriber" safety note. |
+| `01-dashboard.png` | Home | The greeting, the suggested next site, the current dose in mg and mg/kg, and the color coded body map. This is the main shot. |
+| `02-rotation-overview.png` | Site rotation | All the sites with how long ago each was used and a red, amber, or green status. |
+| `03-log-injection.png` | Log injection | The medication and route banner, the color key, tappable front and back body maps, the selected site, and the date and dose fields. |
+| `04-growth-chart.png` | Growth tracker | The height and weight entry form and a growth chart. |
+| `05-calendar.png` | Calendar | A month of logged days, a marker for today, and a summary for the month. |
+| `06-history.png` | Injection history | A dated log with site pills, dose, and notes. |
+| `07-settings.png` | Settings | Profile, medication, theme, and units. |
+| `08-medications.png` | Medication catalog | The preset picker across categories, with a reminder to follow your prescriber. |
 
-## Notes for the listing
-- Google Play requires **2–8** phone screenshots; this set of 8 is the maximum.
-- If a target store or device tier wants a different ratio (e.g. strict 9:16),
-  re-crop from the source or re-capture; `app/tool/crop_screenshots.dart`
-  crops raw captures to 1080 × 2160.
-- These are captured in **light theme**. Consider adding a couple of dark-theme
-  shots (Settings → Appearance → Dark) if you want to show it off.
+## A few notes for the listing
+
+- Google Play wants between 2 and 8 phone screenshots, so this set of 8 is the
+  most you can use.
+- If a store or device tier wants a different ratio, such as a strict 9 to 16,
+  re-crop from the source or capture again. `app/tool/crop_screenshots.dart`
+  crops raw captures to 1080 by 2160.
+- These are all in the light theme. The iOS folder has a dark mode shot if you
+  want to see how that looks, and you can capture the same on Android from
+  Settings then Appearance then Dark.

@@ -17,12 +17,17 @@ class AppConstants {
   static const double inToCm = 2.54;
   static const double lbToKg = 0.453592;
 
-  // Site-rotation recency thresholds, in days (from the original colour logic).
-  // never used or >= [rotationGreenDays] -> good (green)
-  // >= [rotationAmberDays] -> used recently (amber)
-  // otherwise -> used very recently (red)
-  static const int rotationGreenDays = 6;
-  static const int rotationAmberDays = 3;
+  // Site-rotation recency thresholds, in days.
+  // These are the *upper caps*; the live thresholds scale down with how many
+  // sites are in the rotation so there is always at least one green site (see
+  // SiteRotationService.greenDaysFor / amberDaysFor):
+  //   never used or >= green threshold -> good (green)
+  //   >= amber threshold               -> used recently (amber)
+  //   otherwise                        -> used very recently (red)
+  // A spot never has to rest more than [rotationGreenDays] days before it is
+  // "good to use" again.
+  static const int rotationGreenDays = 4;
+  static const int rotationAmberDays = 2;
 
   // Sentinel used when ranking never-used sites first in the suggestion logic.
   static const int neverUsedRank = 9999;

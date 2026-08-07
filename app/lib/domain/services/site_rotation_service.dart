@@ -58,12 +58,40 @@ class SiteRotationService {
   int _daysSince(DateTime date, DateTime now) =>
       AppDates.daysBetween(date, now);
 
-  /// Maps whole days since last use to a status.
-  /// never used or >= 6 days -> good; >= 3 -> recent; else very recent.
-  SiteStatus statusForDays(int? daysSince) {
+  /// How many days a site must rest before it counts as "good to use" (green),
+  /// scaled to how many sites are actually in the rotation.
+  ///
+  /// With [siteCount] sites and one injection a day, the site you used longest
+  /// ago is about `siteCount - 1` days old. Setting the green threshold to that
+  /// (capped at [AppConstants.rotationGreenDays]) means there is always at least
+  /// one green site to reach for, while a spot never has to rest longer than a
+  /// few days before it frees up again.
+  int greenDaysFor(int siteCount) {
+    if (siteCount <= 1) return 1;
+    final scaled = siteCount - 1;
+    return scaled < AppConstants.rotationGreenDays
+        ? scaled
+        : AppConstants.rotationGreenDays;
+  }
+
+  /// The amber ("used recently") threshold, sitting roughly halfway between
+  /// fresh and rested so there is always a red -> amber -> green spread.
+  int amberDaysFor(int siteCount) {
+    final green = greenDaysFor(siteCount);
+    final amber = (green / 2).ceil();
+    return amber < 1 ? 1 : amber;
+  }
+
+  /// Maps whole days since last use to a status, given the green/amber
+  /// thresholds for the current rotation. Never used is always good.
+  SiteStatus statusForDays(
+    int? daysSince, {
+    int greenDays = AppConstants.rotationGreenDays,
+    int amberDays = AppConstants.rotationAmberDays,
+  }) {
     if (daysSince == null) return SiteStatus.good;
-    if (daysSince >= AppConstants.rotationGreenDays) return SiteStatus.good;
-    if (daysSince >= AppConstants.rotationAmberDays) return SiteStatus.recent;
+    if (daysSince >= greenDays) return SiteStatus.good;
+    if (daysSince >= amberDays) return SiteStatus.recent;
     return SiteStatus.veryRecent;
   }
 
@@ -74,6 +102,8 @@ class SiteRotationService {
     DateTime? now,
   }) {
     final clock = now ?? DateTime.now();
+    final greenDays = greenDaysFor(sites.length);
+    final amberDays = amberDaysFor(sites.length);
     return sites.map((site) {
       final forSite = uses.where((u) => u.siteKey == site.key).toList();
       DateTime? last;
@@ -85,7 +115,7 @@ class SiteRotationService {
         site: site,
         lastUsed: last,
         daysSince: days,
-        status: statusForDays(days),
+        status: statusForDays(days, greenDays: greenDays, amberDays: amberDays),
         timesUsed: forSite.length,
       );
     }).toList();

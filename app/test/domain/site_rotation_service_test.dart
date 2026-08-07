@@ -17,12 +17,47 @@ void main() {
     test('never used is good', () {
       expect(service.statusForDays(null), SiteStatus.good);
     });
-    test('boundaries match the original 6/3 thresholds', () {
-      expect(service.statusForDays(6), SiteStatus.good);
-      expect(service.statusForDays(5), SiteStatus.recent);
+    test('boundaries match the default 4/2 thresholds', () {
+      expect(service.statusForDays(4), SiteStatus.good);
       expect(service.statusForDays(3), SiteStatus.recent);
-      expect(service.statusForDays(2), SiteStatus.veryRecent);
+      expect(service.statusForDays(2), SiteStatus.recent);
+      expect(service.statusForDays(1), SiteStatus.veryRecent);
       expect(service.statusForDays(0), SiteStatus.veryRecent);
+    });
+    test('honours explicit thresholds', () {
+      expect(service.statusForDays(2, greenDays: 2, amberDays: 1),
+          SiteStatus.good);
+      expect(service.statusForDays(1, greenDays: 2, amberDays: 1),
+          SiteStatus.recent);
+    });
+  });
+
+  group('threshold scaling', () {
+    test('green threshold is siteCount - 1, capped at 4', () {
+      expect(service.greenDaysFor(2), 1);
+      expect(service.greenDaysFor(4), 3);
+      expect(service.greenDaysFor(5), 4);
+      expect(service.greenDaysFor(6), 4);
+      expect(service.greenDaysFor(10), 4);
+      expect(service.greenDaysFor(1), 1);
+    });
+    test('amber threshold is about half of green, at least 1', () {
+      expect(service.amberDaysFor(6), 2); // green 4 -> 2
+      expect(service.amberDaysFor(4), 2); // green 3 -> 2
+      expect(service.amberDaysFor(2), 1); // green 1 -> 1
+    });
+    test('a perfectly rotated set always has at least one green site', () {
+      // Build N sites, each last used on a distinct consecutive day, oldest
+      // exactly siteCount - 1 days ago (daily rotation, none used today).
+      for (final n in [2, 3, 4, 6, 8, 10]) {
+        final s = List.generate(
+            n, (i) => RotationSite(key: 'site$i', name: 'Site $i'));
+        final uses = List.generate(
+            n, (i) => SiteUse(siteKey: 'site$i', date: now.subtract(Duration(days: i + 1))));
+        final recs = service.recencies(s, uses, now: now);
+        expect(recs.any((r) => r.status == SiteStatus.good), isTrue,
+            reason: 'expected a green site with $n sites');
+      }
     });
   });
 
@@ -36,7 +71,8 @@ void main() {
       final thigh = recs.firstWhere((r) => r.site.key == 'leftThigh');
       expect(thigh.timesUsed, 2);
       expect(thigh.daysSince, 2); // 28 - 26
-      expect(thigh.status, SiteStatus.veryRecent);
+      // 4 sites -> green 3 / amber 2, so 2 days is "used recently" (amber).
+      expect(thigh.status, SiteStatus.recent);
 
       final stomach = recs.firstWhere((r) => r.site.key == 'leftStomach');
       expect(stomach.everUsed, isFalse);
