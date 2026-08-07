@@ -33,7 +33,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _provider = TextEditingController();
 
   DateTime? _dob;
-  Sex _sex = Sex.unspecified;
+  Sex? _sex;
   UnitSystem _units = UnitSystem.imperial;
   DoseUnit _doseUnit = DoseUnit.mg;
   InjectionRoute _route = InjectionRoute.subcutaneous;
@@ -90,7 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final draft = ProfileDraft(
       name: _name.text.trim(),
       dateOfBirth: _dob,
-      sex: _sex,
+      sex: _sex ?? Sex.unspecified,
       healthcareProvider:
           _provider.text.trim().isEmpty ? null : _provider.text.trim(),
       avatarPath: _avatarPath,
@@ -204,7 +204,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onChanged: (_) => setState(() {}),
                     decoration: const InputDecoration(
                       labelText: 'Name *',
-                      hintText: 'e.g. Emma',
                     ),
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
@@ -225,7 +224,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       DropdownMenuItem(value: Sex.female, child: Text('Female')),
                       DropdownMenuItem(value: Sex.male, child: Text('Male')),
                     ],
-                    onChanged: (v) => setState(() => _sex = v ?? Sex.unspecified),
+                    onChanged: (v) => setState(() => _sex = v),
                   ),
                   const SizedBox(height: 14),
                   _MedicationSelector(
@@ -422,7 +421,7 @@ class _DobField extends StatelessWidget {
         final now = DateTime.now();
         final picked = await showDatePicker(
           context: context,
-          initialDate: value ?? DateTime(now.year - 8),
+          initialDate: value ?? now,
           firstDate: DateTime(now.year - 100),
           lastDate: now,
         );

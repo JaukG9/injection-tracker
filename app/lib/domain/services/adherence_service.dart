@@ -52,6 +52,23 @@ class AdherenceService {
 
   DateTime _dateOnly(DateTime d) => AppDates.dateOnly(d);
 
+  /// Whether a scheduled [day] has come "due" as of [now], and so an untaken
+  /// dose there should count as missed.
+  ///
+  /// Past days are always due. Today only becomes due once its deadline passes:
+  /// [deadlineMinutes] minutes after midnight (e.g. a 20:00 reminder -> 1200),
+  /// or, when null, the end of the day (midnight) - so today is never counted
+  /// as missed while it is still today. Future days are never due.
+  bool isDue(DateTime day, DateTime now, {int? deadlineMinutes}) {
+    final d = _dateOnly(day);
+    final today = _dateOnly(now);
+    if (d.isBefore(today)) return true;
+    if (d.isAfter(today)) return false;
+    // d == today: due only after the deadline time has passed today.
+    if (deadlineMinutes == null) return false; // deadline is end of day
+    return now.hour * 60 + now.minute >= deadlineMinutes;
+  }
+
   /// Whether the schedule expects a dose on [day].
   bool isScheduledOn(ScheduleSpec spec, DateTime day) {
     final d = _dateOnly(day);
@@ -70,22 +87,38 @@ class AdherenceService {
 
   /// Computes adherence between [from] and [to] (inclusive) given the set of
   /// dates on which an injection was actually logged.
+  ///
+  /// When [now] is given, a scheduled day that has not yet come due (see
+  /// [isDue]) is treated as still pending: it is left out of both [expected]
+  /// and [missed], and does not break the current streak. Taken days always
+  /// count, even if logged before the deadline. When [now] is null there is no
+  /// grace and every scheduled day in range is counted (historical behaviour).
   AdherenceStats stats({
     required ScheduleSpec spec,
     required Iterable<DateTime> injectionDates,
     required DateTime from,
     required DateTime to,
+    DateTime? now,
+    int? deadlineMinutes,
   }) {
     final taken = injectionDates.map(_dateOnly).toSet();
     final start = _dateOnly(from);
     final end = _dateOnly(to);
 
+    bool due(DateTime d) =>
+        now == null || isDue(d, now, deadlineMinutes: deadlineMinutes);
+
     var expected = 0;
     var takenCount = 0;
     for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 1))) {
       if (!isScheduledOn(spec, d)) continue;
-      expected++;
-      if (taken.contains(d)) takenCount++;
+      if (taken.contains(d)) {
+        expected++;
+        takenCount++;
+      } else if (due(d)) {
+        expected++; // a real miss
+      }
+      // else: not taken and not yet due -> still pending, don't count it.
     }
 
     // Current streak: walk backwards over scheduled days from [end].
@@ -94,9 +127,10 @@ class AdherenceService {
       if (!isScheduledOn(spec, d)) continue;
       if (taken.contains(d)) {
         streak++;
-      } else {
-        break;
+      } else if (due(d)) {
+        break; // a real miss ends the streak
       }
+      // else: pending day, skip without breaking the streak.
     }
 
     return AdherenceStats(

@@ -38,6 +38,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// DateTimes in local time, so day-matching must be done in local time too.
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
+  /// Minutes past midnight for a "HH:mm" reminder time, or null when no
+  /// reminder is set (today is then only counted missed after the day ends).
+  static int? _reminderMinutes(String? hhmm) {
+    if (hhmm == null) return null;
+    final parts = hhmm.split(':');
+    final h = int.tryParse(parts.first);
+    final m = parts.length > 1 ? int.tryParse(parts[1]) : 0;
+    if (h == null || m == null) return null;
+    return h * 60 + m;
+  }
+
   ScheduleSpec? _specFor(MedicationRow? med) {
     if (med == null) return null;
     Map<String, dynamic> cfg;
@@ -70,7 +81,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       (byDay[d] ??= []).add(inj);
     }
 
-    final today = _day(DateTime.now());
+    final now = DateTime.now();
+    final today = _day(now);
+    final deadlineMinutes = _reminderMinutes(med?.reminderTime);
     final monthStart = DateTime(_month.year, _month.month);
     final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
     // Monday-first offset for the 1st of the month.
@@ -89,6 +102,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 .map((i) => i.injectedAt),
             from: monthStart,
             to: rangeEnd,
+            now: now,
+            deadlineMinutes: deadlineMinutes,
           );
 
     return Scaffold(
@@ -142,17 +157,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     for (var i = 0; i < leadingBlanks; i++)
                       const SizedBox.shrink(),
                     for (var day = 1; day <= daysInMonth; day++)
-                      _DayCell(
-                        date: DateTime(_month.year, _month.month, day),
-                        today: today,
-                        injections:
-                            byDay[DateTime(_month.year, _month.month, day)] ??
-                                const [],
-                        scheduled: spec != null &&
-                            adherence.isScheduledOn(
-                                spec, DateTime(_month.year, _month.month, day)),
-                        onTap: _openDay,
-                      ),
+                      Builder(builder: (_) {
+                        final date = DateTime(_month.year, _month.month, day);
+                        final dayItems = byDay[date] ?? const <InjectionRow>[];
+                        final scheduled = spec != null &&
+                            adherence.isScheduledOn(spec, date);
+                        final missed = scheduled &&
+                            !dayItems.any((i) => !i.skipped) &&
+                            adherence.isDue(date, now,
+                                deadlineMinutes: deadlineMinutes);
+                        return _DayCell(
+                          date: date,
+                          today: today,
+                          injections: dayItems,
+                          missed: missed,
+                          onTap: _openDay,
+                        );
+                      }),
                   ],
                 ),
               ],
@@ -250,14 +271,16 @@ class _DayCell extends StatelessWidget {
     required this.date,
     required this.today,
     required this.injections,
-    required this.scheduled,
+    required this.missed,
     required this.onTap,
   });
 
   final DateTime date;
   final DateTime today;
   final List<InjectionRow> injections;
-  final bool scheduled;
+
+  /// Whether this scheduled day has come due without a logged injection.
+  final bool missed;
   final ValueChanged<DateTime> onTap;
 
   @override
@@ -266,8 +289,6 @@ class _DayCell extends StatelessWidget {
     final clinical = context.clinical;
     final hasInjection = injections.any((i) => !i.skipped);
     final isToday = date == today;
-    final isPast = date.isBefore(today);
-    final missed = scheduled && isPast && !hasInjection;
 
     Color? bg;
     Color fg = theme.colorScheme.onSurface;

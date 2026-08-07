@@ -78,6 +78,72 @@ void main() {
     });
   });
 
+  group('AdherenceService (missed cutoff / grace)', () {
+    final spec = ScheduleSpec(
+      type: ScheduleType.daily,
+      startedOn: DateTime(2026, 7, 1),
+    );
+    final takenThroughYesterday = [
+      for (var d = 1; d <= 4; d++) DateTime(2026, 7, d),
+    ];
+
+    test('no reminder: today is not counted missed while it is still today', () {
+      final stats = service.stats(
+        spec: spec,
+        injectionDates: takenThroughYesterday,
+        from: DateTime(2026, 7, 1),
+        to: DateTime(2026, 7, 5),
+        now: DateTime(2026, 7, 5, 10), // 10:00 today, no reminder
+        deadlineMinutes: null,
+      );
+      expect(stats.expected, 4); // today (Jul 5) excluded, still pending
+      expect(stats.missed, 0);
+      expect(stats.currentStreak, 4);
+    });
+
+    test('reminder at 20:00: today counts missed only after 20:00', () {
+      AdherenceStats at(int hour) => service.stats(
+            spec: spec,
+            injectionDates: takenThroughYesterday,
+            from: DateTime(2026, 7, 1),
+            to: DateTime(2026, 7, 5),
+            now: DateTime(2026, 7, 5, hour),
+            deadlineMinutes: 20 * 60,
+          );
+      expect(at(19).missed, 0); // before 20:00 -> still pending
+      final after = at(21); // after 20:00 -> now a real miss
+      expect(after.missed, 1);
+      expect(after.currentStreak, 0);
+    });
+
+    test('a dose taken before the deadline still counts as taken', () {
+      final stats = service.stats(
+        spec: spec,
+        injectionDates: [DateTime(2026, 7, 3), DateTime(2026, 7, 4), DateTime(2026, 7, 5)],
+        from: DateTime(2026, 7, 1),
+        to: DateTime(2026, 7, 5),
+        now: DateTime(2026, 7, 5, 10), // before the 20:00 deadline
+        deadlineMinutes: 20 * 60,
+      );
+      expect(stats.taken, 3);
+      expect(stats.missed, 2); // Jul 1 and Jul 2 (past, untaken)
+      expect(stats.currentStreak, 3);
+    });
+
+    test('past missed days still count regardless of grace', () {
+      final stats = service.stats(
+        spec: spec,
+        injectionDates: [DateTime(2026, 7, 1), DateTime(2026, 7, 2), DateTime(2026, 7, 4)],
+        from: DateTime(2026, 7, 1),
+        to: DateTime(2026, 7, 5),
+        now: DateTime(2026, 7, 5, 10),
+        deadlineMinutes: null,
+      );
+      expect(stats.missed, 1); // Jul 3 missed; Jul 5 still pending
+      expect(stats.expected, 4);
+    });
+  });
+
   group('DoseMath.mgPerKg', () {
     test('computes mg/kg only for mg doses with weight', () {
       expect(
