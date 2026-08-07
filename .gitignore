@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.p12
+*.key
+*.jks
+*.keystore
+*.mobileprovision
+*.p8
+*.pfx
+key.properties
+google-services.json
+GoogleService-Info.plist
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.pgpass
+
+# Local database dumps or backups that shouldn't leave a machine
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log
