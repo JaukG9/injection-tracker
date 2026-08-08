@@ -37,7 +37,9 @@ iPhone and Android.
 .
 ├── app/            The Flutter application
 ├── images/         Store assets
-│   ├── ios/        App Store screenshots and previews (iPhone 17)
+│   ├── ios/        App Store screenshots and previews
+│   │   ├── iphone/ iPhone 17 screenshots and previews
+│   │   └── ipad/   iPad Pro 13-inch screenshots
 │   └── android/    Google Play screenshots
 ├── index.html      Marketing landing page
 ├── privacy.html    Privacy policy

@@ -1,4 +1,4 @@
-# iOS store assets
+# iPhone store assets
 
 These are the App Store screenshots and app previews for the iPhone. Everything
 here was captured from the app running on the iPhone 17 simulator (iOS 26), so
@@ -27,8 +27,7 @@ growth hormone injections rotating across six sites, a dose that steps up from
 | `07-growth-history.png` | Growth history | Dated measurements with BMI and a growth rate in inches per year. |
 | `08-settings.png` | Settings | Profile, medication, theme, and units in one place. |
 | `09-medications.png` | Medication catalog | The preset picker grouped by category, with brand examples and a reminder to follow your prescriber. |
-| `10-dose-history.png` | Dose history | The dose timeline, from starting therapy to the titration increase. |
-| `11-dashboard-dark.png` | Home (dark) | The same dashboard as `01`, in dark mode, so the listing can show both looks side by side. |
+| `10-dashboard-dark.png` | Home (dark) | The same dashboard as `01`, in dark mode, so the listing can show both looks side by side. |
 
 ## App previews
 
@@ -41,8 +40,8 @@ growth hormone injections rotating across six sites, a dose that steps up from
 ## A few notes for the listing
 
 - App Store Connect takes up to 10 screenshots and 3 previews per device size.
-  You have 11 stills here so you can choose which 10 to upload, with the dark
-  shot as the swap in if you want to feature it.
+  This set has exactly 10, with the dark dashboard standing in for a second
+  home shot so the listing can show both looks.
 - The previews were captured as plain screen recordings and then sped up a
   little so each one fits under the 30 second limit. If a device tier rejects
   the exact dimensions, re-record or re-encode to the size it asks for.
