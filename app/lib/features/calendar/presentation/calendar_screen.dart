@@ -38,17 +38,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// DateTimes in local time, so day-matching must be done in local time too.
   static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  /// Minutes past midnight for a "HH:mm" reminder time, or null when no
-  /// reminder is set (today is then only counted missed after the day ends).
-  static int? _reminderMinutes(String? hhmm) {
-    if (hhmm == null) return null;
-    final parts = hhmm.split(':');
-    final h = int.tryParse(parts.first);
-    final m = parts.length > 1 ? int.tryParse(parts[1]) : 0;
-    if (h == null || m == null) return null;
-    return h * 60 + m;
-  }
-
   ScheduleSpec? _specFor(MedicationRow? med) {
     if (med == null) return null;
     Map<String, dynamic> cfg;
@@ -83,7 +72,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     final now = DateTime.now();
     final today = _day(now);
-    final deadlineMinutes = _reminderMinutes(med?.reminderTime);
     final monthStart = DateTime(_month.year, _month.month);
     final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
     // Monday-first offset for the 1st of the month.
@@ -103,7 +91,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             from: monthStart,
             to: rangeEnd,
             now: now,
-            deadlineMinutes: deadlineMinutes,
           );
 
     return Scaffold(
@@ -164,8 +151,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                             adherence.isScheduledOn(spec, date);
                         final missed = scheduled &&
                             !dayItems.any((i) => !i.skipped) &&
-                            adherence.isDue(date, now,
-                                deadlineMinutes: deadlineMinutes);
+                            adherence.isDue(date, now);
                         return _DayCell(
                           date: date,
                           today: today,

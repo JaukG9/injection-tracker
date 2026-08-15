@@ -78,7 +78,7 @@ void main() {
     });
   });
 
-  group('AdherenceService (missed cutoff / grace)', () {
+  group('AdherenceService (only completed days count as missed)', () {
     final spec = ScheduleSpec(
       type: ScheduleType.daily,
       startedOn: DateTime(2026, 7, 1),
@@ -87,57 +87,68 @@ void main() {
       for (var d = 1; d <= 4; d++) DateTime(2026, 7, d),
     ];
 
-    test('no reminder: today is not counted missed while it is still today', () {
+    test('isDue is true only for days before today', () {
+      final now = DateTime(2026, 7, 5, 23, 59);
+      expect(service.isDue(DateTime(2026, 7, 4), now), isTrue); // yesterday
+      expect(service.isDue(DateTime(2026, 7, 5), now), isFalse); // today
+      expect(service.isDue(DateTime(2026, 7, 6), now), isFalse); // future
+    });
+
+    test('today is never missed, no matter the time of day', () {
+      for (final hour in [0, 10, 20, 23]) {
+        final stats = service.stats(
+          spec: spec,
+          injectionDates: takenThroughYesterday,
+          from: DateTime(2026, 7, 1),
+          to: DateTime(2026, 7, 5),
+          now: DateTime(2026, 7, 5, hour),
+        );
+        expect(stats.expected, 4, reason: 'today excluded at $hour:00');
+        expect(stats.missed, 0, reason: 'today not missed at $hour:00');
+        expect(stats.currentStreak, 4);
+      }
+    });
+
+    test('an untaken day becomes missed once the next day starts', () {
       final stats = service.stats(
         spec: spec,
-        injectionDates: takenThroughYesterday,
+        injectionDates: takenThroughYesterday, // Jul 1-4 taken, Jul 5 not
         from: DateTime(2026, 7, 1),
-        to: DateTime(2026, 7, 5),
-        now: DateTime(2026, 7, 5, 10), // 10:00 today, no reminder
-        deadlineMinutes: null,
+        to: DateTime(2026, 7, 6),
+        now: DateTime(2026, 7, 6, 0, 1), // just past midnight
       );
-      expect(stats.expected, 4); // today (Jul 5) excluded, still pending
-      expect(stats.missed, 0);
-      expect(stats.currentStreak, 4);
+      expect(stats.missed, 1); // Jul 5 is now a completed, untaken day
+      expect(stats.currentStreak, 0);
     });
 
-    test('reminder at 20:00: today counts missed only after 20:00', () {
-      AdherenceStats at(int hour) => service.stats(
-            spec: spec,
-            injectionDates: takenThroughYesterday,
-            from: DateTime(2026, 7, 1),
-            to: DateTime(2026, 7, 5),
-            now: DateTime(2026, 7, 5, hour),
-            deadlineMinutes: 20 * 60,
-          );
-      expect(at(19).missed, 0); // before 20:00 -> still pending
-      final after = at(21); // after 20:00 -> now a real miss
-      expect(after.missed, 1);
-      expect(after.currentStreak, 0);
-    });
-
-    test('a dose taken before the deadline still counts as taken', () {
+    test("today's logged dose still counts as taken", () {
       final stats = service.stats(
         spec: spec,
-        injectionDates: [DateTime(2026, 7, 3), DateTime(2026, 7, 4), DateTime(2026, 7, 5)],
-        from: DateTime(2026, 7, 1),
-        to: DateTime(2026, 7, 5),
-        now: DateTime(2026, 7, 5, 10), // before the 20:00 deadline
-        deadlineMinutes: 20 * 60,
-      );
-      expect(stats.taken, 3);
-      expect(stats.missed, 2); // Jul 1 and Jul 2 (past, untaken)
-      expect(stats.currentStreak, 3);
-    });
-
-    test('past missed days still count regardless of grace', () {
-      final stats = service.stats(
-        spec: spec,
-        injectionDates: [DateTime(2026, 7, 1), DateTime(2026, 7, 2), DateTime(2026, 7, 4)],
+        injectionDates: [
+          DateTime(2026, 7, 3),
+          DateTime(2026, 7, 4),
+          DateTime(2026, 7, 5),
+        ],
         from: DateTime(2026, 7, 1),
         to: DateTime(2026, 7, 5),
         now: DateTime(2026, 7, 5, 10),
-        deadlineMinutes: null,
+      );
+      expect(stats.taken, 3);
+      expect(stats.missed, 2); // Jul 1 and Jul 2 are past and untaken
+      expect(stats.currentStreak, 3);
+    });
+
+    test('past missed days still count', () {
+      final stats = service.stats(
+        spec: spec,
+        injectionDates: [
+          DateTime(2026, 7, 1),
+          DateTime(2026, 7, 2),
+          DateTime(2026, 7, 4),
+        ],
+        from: DateTime(2026, 7, 1),
+        to: DateTime(2026, 7, 5),
+        now: DateTime(2026, 7, 5, 10),
       );
       expect(stats.missed, 1); // Jul 3 missed; Jul 5 still pending
       expect(stats.expected, 4);

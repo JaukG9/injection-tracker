@@ -75,7 +75,11 @@ class BodyMap extends StatelessWidget {
     final theme = Theme.of(context);
     final silhouetteFill = theme.colorScheme.surfaceContainerHighest;
     final silhouetteStroke = theme.colorScheme.outlineVariant;
+    // High-contrast in BOTH themes: near-black on light, near-white on dark.
     final selectedStroke = theme.colorScheme.onSurface;
+    // Marker outline follows the background, so a marker never blends into
+    // the selection ring (a hardcoded white outline was invisible in dark mode).
+    final markerOutline = theme.colorScheme.surface;
 
     return SizedBox(
       width: width,
@@ -95,6 +99,7 @@ class BodyMap extends StatelessWidget {
                   silhouetteFill: silhouetteFill,
                   silhouetteStroke: silhouetteStroke,
                   selectedStroke: selectedStroke,
+                  markerOutline: markerOutline,
                 ),
               ),
             ),
@@ -111,12 +116,14 @@ class _BodyMapPainter extends CustomPainter {
     required this.silhouetteFill,
     required this.silhouetteStroke,
     required this.selectedStroke,
+    required this.markerOutline,
   });
 
   final List<BodyMapSite> sites;
   final Color silhouetteFill;
   final Color silhouetteStroke;
   final Color selectedStroke;
+  final Color markerOutline;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -197,19 +204,43 @@ class _BodyMapPainter extends CustomPainter {
     }
     for (final s in sites) {
       if (!s.enabled) continue;
+      final center = Offset(s.cx, s.cy);
       final rect = Rect.fromCenter(
-        center: Offset(s.cx, s.cy),
+        center: center,
         width: s.rx * 2,
         height: s.ry * 2,
       );
-      // Soft halo around the selected site for emphasis.
+      // Selection is drawn as a detached double ring plus a halo, so it stays
+      // obvious against any marker colour in both light and dark themes.
       if (s.selected) {
         canvas.drawOval(
           Rect.fromCenter(
-              center: Offset(s.cx, s.cy),
-              width: s.rx * 2 + 8,
-              height: s.ry * 2 + 8),
-          Paint()..color = s.color.withValues(alpha: 0.25),
+              center: center,
+              width: s.rx * 2 + 16,
+              height: s.ry * 2 + 16),
+          Paint()..color = s.color.withValues(alpha: 0.32),
+        );
+        // Gap ring in the background colour separates marker from the outline.
+        canvas.drawOval(
+          Rect.fromCenter(
+              center: center,
+              width: s.rx * 2 + 7,
+              height: s.ry * 2 + 7),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 4
+            ..color = markerOutline,
+        );
+        // High-contrast selection ring.
+        canvas.drawOval(
+          Rect.fromCenter(
+              center: center,
+              width: s.rx * 2 + 10,
+              height: s.ry * 2 + 10),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.5
+            ..color = selectedStroke,
         );
       }
       canvas.drawOval(rect, Paint()..color = s.color);
@@ -217,8 +248,8 @@ class _BodyMapPainter extends CustomPainter {
         rect,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = s.selected ? 2.5 : 1.5
-          ..color = s.selected ? selectedStroke : Colors.white,
+          ..strokeWidth = s.selected ? 2 : 1.5
+          ..color = markerOutline,
       );
     }
   }
@@ -232,7 +263,8 @@ class _BodyMapPainter extends CustomPainter {
   bool shouldRepaint(_BodyMapPainter old) =>
       old.sites != sites ||
       old.silhouetteFill != silhouetteFill ||
-      old.selectedStroke != selectedStroke;
+      old.selectedStroke != selectedStroke ||
+      old.markerOutline != markerOutline;
 }
 
 /// The 3-letter label for a region, matching the prototype (STO/THI/BUT).

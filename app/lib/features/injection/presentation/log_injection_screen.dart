@@ -247,15 +247,38 @@ class _LogInjectionScreenState extends ConsumerState<LogInjectionScreen> {
           ),
           const SizedBox(height: 8),
           Center(
-            child: Text(
-              selectedName == null
-                  ? 'Tap a site to select it'
-                  : 'Selected: $selectedName',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.primary,
-              ),
-            ),
+            child: selectedName == null
+                ? Text(
+                    'Tap a site to select it',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.outline,
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_circle,
+                            size: 18,
+                            color: theme.colorScheme.onPrimaryContainer),
+                        const SizedBox(width: 8),
+                        Text(
+                          selectedName,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
           const Divider(height: 32),
           ListTile(

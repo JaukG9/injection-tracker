@@ -52,6 +52,8 @@ class ReportService {
             injections.where((i) => !i.skipped).map((i) => i.injectedAt),
         from: from,
         to: to,
+        // Today is still in progress, so it isn't counted as missed.
+        now: DateTime.now(),
       );
     }
 

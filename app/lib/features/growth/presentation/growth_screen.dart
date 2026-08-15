@@ -23,6 +23,29 @@ class _GrowthScreenState extends ConsumerState<GrowthScreen> {
   final _weight = TextEditingController();
   final _notes = TextEditingController();
 
+  /// When the measurement was taken. Defaults to today, but can be backdated
+  /// so past measurements land in the right spot on the chart and history.
+  DateTime _measuredAt = DateTime.now();
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _measuredAt,
+      firstDate: DateTime(now.year - 100),
+      lastDate: now,
+    );
+    if (picked == null) return;
+    setState(() {
+      // Keep the current time of day so entries on the same date stay ordered.
+      _measuredAt = DateTime(
+          picked.year, picked.month, picked.day, now.hour, now.minute);
+    });
+  }
+
+  static bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   @override
   void dispose() {
     _height.dispose();
@@ -44,7 +67,7 @@ class _GrowthScreenState extends ConsumerState<GrowthScreen> {
     }
     await ref.read(growthRepositoryProvider).add(
           profileId: profileId,
-          measuredAt: DateTime.now(),
+          measuredAt: _measuredAt,
           heightCm: h == null ? null : UnitConverter.heightToCm(h, units),
           weightKg: w == null ? null : UnitConverter.weightToKg(w, units),
           notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
@@ -52,7 +75,10 @@ class _GrowthScreenState extends ConsumerState<GrowthScreen> {
     _height.clear();
     _weight.clear();
     _notes.clear();
-    if (mounted) FocusScope.of(context).unfocus();
+    if (!mounted) return;
+    // Reset to today so the next entry doesn't silently reuse an old date.
+    setState(() => _measuredAt = DateTime.now());
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -121,7 +147,20 @@ class _GrowthScreenState extends ConsumerState<GrowthScreen> {
                     labelText: 'Notes (optional)',
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 6),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.event_outlined),
+                  title: const Text('Date measured'),
+                  subtitle: Text(
+                    _isSameDay(_measuredAt, DateTime.now())
+                        ? 'Today (${df.format(_measuredAt)})'
+                        : df.format(_measuredAt),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickDate,
+                ),
+                const SizedBox(height: 8),
                 FilledButton(
                   onPressed: () => _log(units),
                   child: const Text('Log measurement'),

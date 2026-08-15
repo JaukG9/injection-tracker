@@ -55,19 +55,11 @@ class AdherenceService {
   /// Whether a scheduled [day] has come "due" as of [now], and so an untaken
   /// dose there should count as missed.
   ///
-  /// Past days are always due. Today only becomes due once its deadline passes:
-  /// [deadlineMinutes] minutes after midnight (e.g. a 20:00 reminder -> 1200),
-  /// or, when null, the end of the day (midnight) - so today is never counted
-  /// as missed while it is still today. Future days are never due.
-  bool isDue(DateTime day, DateTime now, {int? deadlineMinutes}) {
-    final d = _dateOnly(day);
-    final today = _dateOnly(now);
-    if (d.isBefore(today)) return true;
-    if (d.isAfter(today)) return false;
-    // d == today: due only after the deadline time has passed today.
-    if (deadlineMinutes == null) return false; // deadline is end of day
-    return now.hour * 60 + now.minute >= deadlineMinutes;
-  }
+  /// Only fully elapsed days count: a day becomes due at midnight at the end of
+  /// it. Today is therefore never reported as missed while it is still today
+  /// (there is still time to log it), and future days are never due.
+  bool isDue(DateTime day, DateTime now) =>
+      _dateOnly(day).isBefore(_dateOnly(now));
 
   /// Whether the schedule expects a dose on [day].
   bool isScheduledOn(ScheduleSpec spec, DateTime day) {
@@ -90,23 +82,21 @@ class AdherenceService {
   ///
   /// When [now] is given, a scheduled day that has not yet come due (see
   /// [isDue]) is treated as still pending: it is left out of both [expected]
-  /// and [missed], and does not break the current streak. Taken days always
-  /// count, even if logged before the deadline. When [now] is null there is no
-  /// grace and every scheduled day in range is counted (historical behaviour).
+  /// and [missed], and does not break the current streak. Today's dose always
+  /// counts as taken once logged. When [now] is null every scheduled day in
+  /// range is counted, with no pending grace.
   AdherenceStats stats({
     required ScheduleSpec spec,
     required Iterable<DateTime> injectionDates,
     required DateTime from,
     required DateTime to,
     DateTime? now,
-    int? deadlineMinutes,
   }) {
     final taken = injectionDates.map(_dateOnly).toSet();
     final start = _dateOnly(from);
     final end = _dateOnly(to);
 
-    bool due(DateTime d) =>
-        now == null || isDue(d, now, deadlineMinutes: deadlineMinutes);
+    bool due(DateTime d) => now == null || isDue(d, now);
 
     var expected = 0;
     var takenCount = 0;
